@@ -11,3 +11,5 @@
  */
 
 require_once 'vendor/autoload.php';
+
+register_activation_hook(__FILE__, ['Dizatech\WpQueue\Database', 'init']);
