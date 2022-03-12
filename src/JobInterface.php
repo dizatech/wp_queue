@@ -3,5 +3,5 @@
 namespace Dizatech\WpQueue;
 
 interface JobInterface{
-    function handle();
+    public function handle();
 }

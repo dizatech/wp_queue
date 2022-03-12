@@ -3,6 +3,7 @@
 namespace Dizatech\WpQueue;
 
 use Exception;
+use ReflectionClass;
 
 class Job{
     protected $job;
@@ -103,6 +104,26 @@ class Job{
             "{$wpdb->prefix}queue_jobs",
             ['id' => $this->job->id],
             ['id' => '%s']
+        );
+    }
+
+    public static function dispatch($job, array $payload=[])
+    {
+        global $wpdb;
+        $ref = new ReflectionClass($job);
+        
+        $data = [
+            'job'               => $ref->getName(),
+            'payload'           => json_encode($payload)
+        ];
+        $format = [
+            'job'               => '%s',
+            'retpayloadry_at'   => '%s'
+        ];
+        $wpdb->insert(
+            "{$wpdb->prefix}queue_jobs",
+            $data,
+            $format
         );
     }
 }
