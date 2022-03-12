@@ -48,7 +48,7 @@ class Job{
 
     private function callHandler()
     {
-        $this->handler->handle();
+        $this->handler->handle( json_decode( $this->job->payload ) );
     }
 
     private function retry()

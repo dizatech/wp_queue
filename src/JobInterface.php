@@ -3,5 +3,5 @@
 namespace Dizatech\WpQueue;
 
 interface JobInterface{
-    public function handle();
+    public function handle($payload);
 }
