@@ -10,6 +10,9 @@
  * License URI:       https://www.gnu.org/licenses/gpl-3.0.html
  */
 
+use Dizatech\WpQueue\Job;
+use Dizatech\WpQueue\SyncProductJob;
+
 require_once 'vendor/autoload.php';
 
 register_activation_hook(__FILE__, function (){
@@ -39,4 +42,14 @@ register_activation_hook(__FILE__, function (){
 if( class_exists('WP_CLI') ){
     WP_CLI::add_command( 'worker', 'Dizatech\WpQueue\QueueWorker' );
     WP_CLI::add_command( 'sync', 'Dizatech\WpQueue\SyncProductCommand' );
+}
+
+add_action('transition_post_status', 'wp_queue_sync_product', 9999, 3);
+function wp_queue_sync_product($new_status, $old_status, $post){
+    if( $post->post_type == 'product' && $old_status != $new_status && $new_status == 'publish' ){
+        Job::dispatch(SyncProductJob::class, ['product_id' => $post->ID]);
+    }
+    elseif( $post->post_type == 'product_variation' ){
+        Job::dispatch(SyncProductJob::class, ['product_id' => $post->ID]);
+    }
 }
