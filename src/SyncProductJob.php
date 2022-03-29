@@ -8,35 +8,40 @@ class SyncProductJob implements JobInterface{
     function handle($payload)
     {
         //A: get token
-        $ch = curl_init();
-        curl_setopt_array($ch, [
-            CURLOPT_URL             => SEPIDAR_API_URL . '/token',
-            CURLOPT_POST            => true,
-            CURLOPT_POSTFIELDS      => json_encode([
-                'username'          => SEPIDAR_API_USERNAME,
-                'password'          => SEPIDAR_API_PASSWORD
-            ]),
-            CURLOPT_HTTPHEADER      => ['Content-Type:application/json'],
-            CURLOPT_RETURNTRANSFER  => true
-        ]);
-        $response = curl_exec($ch);
-        curl_close($ch);
-        $response = json_decode($response);
-        $token = $response->token;
+        $token = get_transient('sepidar_api_token');
+        if( !$token ){
+            $ch = curl_init();
+            curl_setopt_array($ch, [
+                CURLOPT_URL             => SEPIDAR_API_URL . '/token',
+                CURLOPT_POST            => true,
+                CURLOPT_POSTFIELDS      => json_encode([
+                    'username'          => SEPIDAR_API_USERNAME,
+                    'password'          => SEPIDAR_API_PASSWORD
+                ]),
+                CURLOPT_HTTPHEADER      => ['Content-Type:application/json'],
+                CURLOPT_RETURNTRANSFER  => true
+            ]);
+            $response = curl_exec($ch);
+            curl_close($ch);
+            $response = json_decode($response);
+            $token = $response->token;
+            set_transient( 'sepidar_api_token', $token, 120 );
+        }
 
         //B: send request
         $product = wc_get_product( $payload->product_id );
         if( $product && in_array( $product->get_type(), ['simple', 'variation'] ) ){
             $product_id = $product->get_id();
             if( $product->get_type() == 'simple' ){
-                $title = $product->get_title();
+                $title = trim( $product->get_title() );
             }
             else{
                 $parent_id = $product->get_parent_id();
                 $parent = wc_get_product($parent_id);
-                $title = $parent->get_title() . " | " . implode(" | ", $product->get_variation_attributes() );
+                $title = trim( $parent->get_title() ) . " | " . implode(" | ", $product->get_variation_attributes() );
                 $title = rtrim($title, " | ");
             }
+            $title = urldecode( $title );
 
             $ch = curl_init();
             curl_setopt_array($ch, [

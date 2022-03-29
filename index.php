@@ -13,7 +13,7 @@
 use Dizatech\WpQueue\Job;
 use Dizatech\WpQueue\SyncProductJob;
 
-require_once 'vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 register_activation_hook(__FILE__, function (){
     global $wpdb;
@@ -40,8 +40,12 @@ register_activation_hook(__FILE__, function (){
     dbDelta($sql);
 });
 if( class_exists('WP_CLI') ){
-    WP_CLI::add_command( 'worker', 'Dizatech\WpQueue\QueueWorker' );
-    WP_CLI::add_command( 'sync', 'Dizatech\WpQueue\SyncProductCommand' );
+    if( class_exists('Dizatech\WpQueue\QueueWorker') ){
+        WP_CLI::add_command( 'worker', 'Dizatech\WpQueue\QueueWorker' );
+    }
+    if( class_exists('Dizatech\WpQueue\SyncProductCommand') ){
+        WP_CLI::add_command( 'sync', 'Dizatech\WpQueue\SyncProductCommand' );
+    }
 }
 
 add_action('transition_post_status', 'wp_queue_sync_product', 9999, 3);

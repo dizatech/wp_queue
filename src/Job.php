@@ -114,11 +114,11 @@ class Job{
         
         $data = [
             'job'               => $ref->getName(),
-            'payload'           => json_encode($payload)
+            'payload'           => json_encode($payload),
         ];
         $format = [
             'job'               => '%s',
-            'retpayloadry_at'   => '%s'
+            'payload'           => '%s'
         ];
         $wpdb->insert(
             "{$wpdb->prefix}queue_jobs",

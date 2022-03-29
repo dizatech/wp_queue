@@ -60,16 +60,48 @@ class QueueWorker{
 			$sql = $wpdb->prepare( $sql, $assoc_args['count'] );
 			$job_records = $wpdb->get_results( $sql );
 
-			if( empty( $job_records ) ){
-				sleep($assoc_args['sleep']);
-			}
-			else{
+			if( !empty( $job_records ) ){
 				foreach( $job_records as $job_record ){
 					WP_CLI::line( date('Y-m-d H:i:s') . "    Doing job {$job_record->id} ...");
 					$job = new Job($job_record, $assoc_args['retries'], $assoc_args['retry_interval']);
 					$job->do();
 				}
 			}
+
+			sleep($assoc_args['sleep']);
+		}
+	}
+
+	public function retry($args)
+	{
+		$id = $args[0] ?? null;
+		
+		global $wpdb;
+		$sql = "SELECT * FROM {$wpdb->prefix}queue_failed_jobs";
+		if( $id > 0 ){
+			$sql .= $wpdb->prepare( " WHERE id=%d", $id );
+		}
+		$jobs = $wpdb->get_results($sql);
+		foreach( $jobs as $job ){
+			$data = [
+				'job'               => $job->job,
+				'payload'           => $job->payload,
+			];
+			$format = [
+				'job'               => '%s',
+				'payload'           => '%s'
+			];
+			$wpdb->insert(
+				"{$wpdb->prefix}queue_jobs",
+				$data,
+				$format
+			);
+
+			$wpdb->delete(
+				"{$wpdb->prefix}queue_failed_jobs",
+				['id' => $job->id],
+				['id' => '%s']
+			);
 		}
 	}
 }
