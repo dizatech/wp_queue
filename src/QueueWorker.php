@@ -40,7 +40,7 @@ class QueueWorker{
 	public function work($args, $assoc_args)
 	{
 		set_time_limit(-1);
-		date_default_timezone_set('Asia/Tehran');
+		date_default_timezone_set('UTC');
 		$assoc_args = wp_parse_args(
 			$assoc_args,
 			array(
@@ -56,7 +56,7 @@ class QueueWorker{
 			$sql = "SELECT * FROM
 				{$wpdb->prefix}queue_jobs
 				WHERE retry_at <= NOW()
-				ORDER BY created_at DESC LIMIT 0, %d";
+				ORDER BY retry_at ASC LIMIT 0, %d";
 			$sql = $wpdb->prepare( $sql, $assoc_args['count'] );
 			$job_records = $wpdb->get_results( $sql );
 
@@ -74,6 +74,7 @@ class QueueWorker{
 
 	public function retry($args)
 	{
+		date_default_timezone_set('UTC');
 		$id = $args[0] ?? null;
 		
 		global $wpdb;

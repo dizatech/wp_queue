@@ -20,16 +20,18 @@ class SyncProductCommand{
     public function products()
     {
         set_time_limit(-1);
-        date_default_timezone_set('Asia/Tehran');
+        date_default_timezone_set('UTC');
+
         $args = [
             'post_type'         => ['product','product_variation'],
-            'posts_per_page'    => -1
+            'posts_per_page'    => -1,
+            'post_status'       => ['publish', 'inherit']
         ];
         $q = new WP_Query($args);
         while( $q->have_posts() ){
             $q->the_post();
             $product = wc_get_product( get_the_ID() );
-            if( in_array( $product->get_type(), ['simple', 'variation']) ){
+            if( in_array( $product->get_type(), ['simple', 'variable', 'variation']) ){
                 if( $product->get_type() == 'variation' ){
                     $parent_id = $product->get_parent_id();
                     if( $parent_id == 0 ){ //not valid

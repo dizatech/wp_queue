@@ -30,9 +30,9 @@ class SyncProductJob implements JobInterface{
 
         //B: send request
         $product = wc_get_product( $payload->product_id );
-        if( $product && in_array( $product->get_type(), ['simple', 'variation'] ) ){
+        if( $product && in_array( $product->get_type(), ['simple', 'variable', 'variation'] ) ){
             $product_id = $product->get_id();
-            if( $product->get_type() == 'simple' ){
+            if( in_array( $product->get_type(), ['simple', 'variable'] ) ){
                 $title = trim( $product->get_title() );
             }
             else{

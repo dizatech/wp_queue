@@ -13,6 +13,7 @@ class Job{
 
     public function __construct($job, $retries, $retry_interval)
     {
+        date_default_timezone_set('UTC');
         $this->job = $job;
         $this->retries = $retries;
         $this->retry_interval = $retry_interval;
@@ -110,15 +111,20 @@ class Job{
     public static function dispatch($job, array $payload=[])
     {
         global $wpdb;
+        date_default_timezone_set('UTC');
         $ref = new ReflectionClass($job);
         
         $data = [
             'job'               => $ref->getName(),
             'payload'           => json_encode($payload),
+            'created_at'        => date('Y-m-d H:i:s'),
+            'retry_at'          => date('Y-m-d H:i:s')
         ];
         $format = [
             'job'               => '%s',
-            'payload'           => '%s'
+            'payload'           => '%s',
+            'created_at'        => '%s',
+            'retry_at'          => '%s'
         ];
         $wpdb->insert(
             "{$wpdb->prefix}queue_jobs",
