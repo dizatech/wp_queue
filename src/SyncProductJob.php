@@ -51,7 +51,7 @@ class SyncProductJob implements JobInterface{
                 CURLOPT_POSTFIELDS      => json_encode([
                     'code'              => "1/{$product_id}",
                     'title'             => $title,
-                    'unit'              => "عدد",
+                    'unit'              => tamad_get_product_unit($product_id),
                     'type'              => 1,
                     'stockcode'         => 1,
                     'canHaveTracing'    => false
@@ -62,6 +62,7 @@ class SyncProductJob implements JobInterface{
                 ],
                 CURLOPT_RETURNTRANSFER  => true
             ]);
+
             $response = curl_exec($ch);
             $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             if( $status != 200 ){
