@@ -55,7 +55,7 @@ class SyncProductJob implements JobInterface{
                     'type'              => 1,
                     'stockcode'         => 1,
                     'canHaveTracing'    => false
-                ]),
+                ], JSON_UNESCAPED_UNICODE),
                 CURLOPT_HTTPHEADER      => [
                     'Authorization:Bearer ' . $token,
                     'Content-Type:application/json'
