@@ -51,7 +51,7 @@ class SyncProductJob implements JobInterface{
                 CURLOPT_POSTFIELDS      => json_encode([
                     'code'              => "1/{$product_id}",
                     'title'             => $title,
-                    'unit'              => tamad_get_product_unit($product_id),
+                    'unit'              => get_sepidar_unit($product_id),
                     'type'              => 1,
                     'stockcode'         => 1,
                     'canHaveTracing'    => false

@@ -114,22 +114,34 @@ class Job{
         date_default_timezone_set('UTC');
         $ref = new ReflectionClass($job);
         
-        $data = [
-            'job'               => $ref->getName(),
-            'payload'           => json_encode($payload),
-            'created_at'        => date('Y-m-d H:i:s'),
-            'retry_at'          => date('Y-m-d H:i:s')
-        ];
-        $format = [
-            'job'               => '%s',
-            'payload'           => '%s',
-            'created_at'        => '%s',
-            'retry_at'          => '%s'
-        ];
-        $wpdb->insert(
-            "{$wpdb->prefix}queue_jobs",
-            $data,
-            $format
+        $coded_data = json_encode($payload);
+        $sql = $wpdb->prepare(
+            "SELECT COUNT(*)
+                FROM {$wpdb->prefix}queue_jobs 
+                WHERE job = %s
+                AND payload = %s",
+            $ref->getName(),
+            $coded_data
         );
+        $duplicated = $wpdb->get_var($sql);
+        if(!$duplicated){
+            $data = [
+                'job'               => $ref->getName(),
+                'payload'           => $coded_data,
+                'created_at'        => date('Y-m-d H:i:s'),
+                'retry_at'          => date('Y-m-d H:i:s')
+            ];
+            $format = [
+                'job'               => '%s',
+                'payload'           => '%s',
+                'created_at'        => '%s',
+                'retry_at'          => '%s'
+            ];
+            $wpdb->insert(
+                "{$wpdb->prefix}queue_jobs",
+                $data,
+                $format
+            );
+        }
     }
 }

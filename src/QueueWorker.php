@@ -53,6 +53,7 @@ class QueueWorker{
 		
 		global $wpdb;
 		while(1){
+			wp_cache_flush();
 			$sql = "SELECT * FROM
 				{$wpdb->prefix}queue_jobs
 				WHERE retry_at <= NOW()
