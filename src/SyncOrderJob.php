@@ -6,13 +6,8 @@ use Exception;
 class SyncOrderJob implements JobInterface{
     function handle($payload){
         $data = $this->get_order_info($payload->order_id);
-        // file_put_contents(
-        //     'filename.txt',
-        //     print_r($data['line_items'][0]['quantity'], true),
-        //     FILE_APPEND
-        // );
         $client = new \GuzzleHttp\Client();
-        $response = $client->request('POST', 'http://127.0.0.1:8000/api/order/sync_order', [
+        $response = $client->request('POST', PORTAL_URL.'/api/order/sync_order', [
             'headers'   => [
                 'Authorization' => 'Bearer '.TAMADKALA_API_TOKEN,
                 'Accept'         => 'application/json'
