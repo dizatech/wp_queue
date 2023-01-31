@@ -108,6 +108,12 @@ class SyncOrderJob implements JobInterface{
             $product = wc_get_product($line_item_data['product_id']);
         }
 
+        //set original data
+        $line_item_details['original_product_id'] = $line_item_data['product_id'];
+        $line_item_details['original_variation_id'] = $line_item_data['variation_id'];
+        $line_item_details['original_quantity'] = $line_item_data['quantity'];
+        $line_item_details['original_title'] = urldecode($line_item_data['name']);
+
         $line_item_details['unit'] = get_sepidar_unit($product->get_id());
         if($product->is_type('simple') || $product->is_type('variable')){
             $sepidar_sale_amount = 0;
