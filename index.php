@@ -63,23 +63,27 @@ function wp_queue_sync_product($new_status, $old_status, $post)
 add_action('woocommerce_new_order', 'tamad_sync_new_order',  1, 2);
 function tamad_sync_new_order($order_id, $order)
 {
-    Job::dispatch(SyncOrderJob::class, ['order_id' => $order_id]);
+    if(!$GLOBALS['silent_order_update'])
+        Job::dispatch(SyncOrderJob::class, ['order_id' => $order_id]);
 }
 
 add_action('woocommerce_payment_complete', 'tamad_sync_order_payment', 10, 2);
 function tamad_sync_order_payment($order_id, $order)
 {
-    Job::dispatch(SyncOrderJob::class, ['order_id' => $order_id]);
+    if(!$GLOBALS['silent_order_update'])
+        Job::dispatch(SyncOrderJob::class, ['order_id' => $order_id]);
 }
 
 add_action('woocommerce_after_order_object_save', 'tamad_sync_order_items', 10, 1);
 function tamad_sync_order_items($order)
 {
-    Job::dispatch(SyncOrderJob::class, ['order_id' => $order->id]);
+    if(!$GLOBALS['silent_order_update'])
+        Job::dispatch(SyncOrderJob::class, ['order_id' => $order->id]);
 }
 
 add_action('woocommerce_ajax_order_items_added', 'tamad_add_item', 10, 2);
 function tamad_add_item($added_items, $order)
 {
-    Job::dispatch(SyncOrderJob::class, ['order_id' => $order->id]);
+    if(!$GLOBALS['silent_order_update'])
+        Job::dispatch(SyncOrderJob::class, ['order_id' => $order->id]);
 }
