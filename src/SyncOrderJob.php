@@ -44,7 +44,11 @@ class SyncOrderJob implements JobInterface{
         $info['company_nid'] = get_user_meta( $order_data['customer_id'], 'ilenc', TRUE );
         $info['company_financial_code'] = get_user_meta( $order_data['customer_id'], 'financial_code', TRUE );
         $info['request_official_invoice'] = get_post_meta($order->get_id(),'request_official_invoice',true);
-    
+        $info['company_name'] = get_post_meta($order->get_id(),'_company_name',true);
+	    $info['company_address'] = get_post_meta($order->get_id(),'_company_address',true);
+	    $info['company_postcode'] = get_post_meta($order->get_id(),'_company_postcode',true);
+    	$info['info_confirmed'] = get_post_meta($order->get_id(),'_info_confirmed',true);
+
         $info['line_items'] =[];
         foreach( $order_data['line_items'] as $line_item ){
             $line_item_details = [];
