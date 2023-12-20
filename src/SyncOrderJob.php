@@ -6,6 +6,9 @@ use Exception;
 class SyncOrderJob implements JobInterface{
     function handle($payload){
         $data = $this->get_order_info($payload->order_id);
+        //$dir = realpath(dirname(__FILE__)).'/';
+        //$file = $dir."debug_syncOrderJob.txt";
+        //file_put_contents($file, json_encode($data), FILE_APPEND);
         $client = new \GuzzleHttp\Client();
         $response = $client->request('POST', PORTAL_URL.'/api/order/sync_order', [
             'headers'   => [
@@ -14,6 +17,7 @@ class SyncOrderJob implements JobInterface{
             ],
             'body' => json_encode($data)
         ]);
+
     }
 
     function get_order_info($order_id){
@@ -44,10 +48,20 @@ class SyncOrderJob implements JobInterface{
         $info['company_nid'] = get_user_meta( $order_data['customer_id'], 'ilenc', TRUE );
         $info['company_financial_code'] = get_user_meta( $order_data['customer_id'], 'financial_code', TRUE );
         $info['request_official_invoice'] = get_post_meta($order->get_id(),'request_official_invoice',true);
-        $info['company_name'] = get_post_meta($order->get_id(),'_company_name',true);
-	    $info['company_address'] = get_post_meta($order->get_id(),'_company_address',true);
-	    $info['company_postcode'] = get_post_meta($order->get_id(),'_company_postcode',true);
-    	$info['info_confirmed'] = get_post_meta($order->get_id(),'_info_confirmed',true);
+        $info['info_confirmed'] = get_post_meta($order->get_id(),'_info_confirmed',true) ?? 0;
+        if ($info['request_official_invoice']) {
+            if (get_post_meta($order->get_id(),'_invoice_type',true) == 'LegalEntity') {
+                $info['invoice_type'] = 'LegalEntity';
+                $info['company_name'] = get_post_meta($order->get_id(),'_company_name',true);
+                $info['company_address'] = get_post_meta($order->get_id(),'_company_address',true);
+                $info['company_postcode'] = get_post_meta($order->get_id(),'_company_postcode',true);
+                $info['company_province'] = get_post_meta($order->get_id(),'_company_province',true);
+                $info['company_city'] = get_post_meta($order->get_id(),'_company_city',true);
+            } else {
+                $info['invoice_type'] = 'Individual';
+            }
+        }
+
 
         $info['line_items'] =[];
         foreach( $order_data['line_items'] as $line_item ){
