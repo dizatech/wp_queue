@@ -62,7 +62,6 @@ class SyncOrderJob implements JobInterface{
             }
         }
 
-
         $info['line_items'] =[];
         foreach( $order_data['line_items'] as $line_item ){
             $line_item_details = [];
@@ -131,13 +130,33 @@ class SyncOrderJob implements JobInterface{
         $line_item_details['original_variation_id'] = $line_item_data['variation_id'];
         $line_item_details['original_quantity'] = $line_item_data['quantity'];
         $line_item_details['original_title'] = urldecode($line_item_data['name']);
+        $line_item_details['original_package_amount'] = 1;
 
         $line_item_details['unit'] = get_sepidar_unit($product->get_id());
         if($product->is_type('simple') || $product->is_type('variable')){
             $sepidar_sale_amount = 0;
+
+            if ( $product->is_type('variable') ) {
+                foreach ($product->get_children() as $child_id) {
+                    $is_original_package = get_post_meta($child_id, 'original_package', true);
+                    if ($is_original_package=='yes') {
+                        $line_item_details['original_package_amount'] = get_post_meta($child_id,'_sepidar_sale_amount',true);
+                        break;
+                    }
+                }
+            }
         }else{
             $line_item_details['sepidar_sale_amount'] = get_post_meta($product->get_id(),'_sepidar_sale_amount',true);
             $sepidar_sale_amount = get_post_meta($product->get_id(),'_sepidar_sale_amount',true)!='' ? get_post_meta($product->get_id(),'_sepidar_sale_amount',true) : 0;
+
+            $parent = wc_get_product($product->get_parent_id());
+            foreach ($parent->get_children() as $child_id) {
+                $is_original_package = get_post_meta($child_id, 'original_package', true);
+                if ($is_original_package=='yes') {
+                    $line_item_details['original_package_amount'] = get_post_meta($child_id,'_sepidar_sale_amount',true);
+                    break;
+                }
+            }
         }
 
         $line_item_details['product_id'] = $line_item_data['product_id'];
