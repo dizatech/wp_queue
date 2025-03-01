@@ -223,6 +223,7 @@ class SyncOrderJob implements JobInterface{
 
     function get_fees($fees)
     {
+        $info=[];
         foreach( $fees as $fee ){
             $fee_data = $fee->get_data();
             $info[] = array(

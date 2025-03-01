@@ -38,6 +38,9 @@ class SyncProductJob implements JobInterface{
             else{
                 $parent_id = $product->get_parent_id();
                 $parent = wc_get_product($parent_id);
+                if ($parent === false) {
+                    throw new Exception("Parent not found for product: " . $product->get_id());
+                }
                 $title = trim( $parent->get_title() ) . " | " . implode(" | ", $product->get_variation_attributes() );
                 $title = rtrim($title, " | ");
             }

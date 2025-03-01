@@ -14,6 +14,7 @@
 use Dizatech\WpQueue\Job;
 use Dizatech\WpQueue\SyncProductJob;
 use Dizatech\WpQueue\SyncOrderJob;
+use Dizatech\WpQueue\SendGiftCode;
 
 require_once __DIR__ . '/vendor/autoload.php';
 
@@ -47,6 +48,9 @@ if (class_exists('WP_CLI')) {
     }
     if (class_exists('Dizatech\WpQueue\SyncProductCommand')) {
         WP_CLI::add_command('sync', 'Dizatech\WpQueue\SyncProductCommand');
+    }
+    if (class_exists('Dizatech\WpQueue\ExportCommand')) {
+        WP_CLI::add_command('export', 'Dizatech\WpQueue\ExportCommand');
     }
 }
 
